@@ -90,7 +90,7 @@ export class UserController {
     return await this.createUserApplication.execute(combined, req);
   }
 
-  @Post('/login')
+  @Post('/loginsssssssssssssss')
   @UsePipes(createPipe(LoginUserDtoInput))
   @ApiBody({ type: LoginUserDtoInput, required: true })
   async login(

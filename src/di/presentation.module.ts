@@ -9,7 +9,6 @@ import { ProductController } from 'src/presentation/v1/http/products/controller/
 import { OrderController } from 'src/presentation/v1/http/orders/controller/order.controller';
 import { ItemController } from 'src/presentation/v1/http/itens/controller/item.controller';
 import { PaymentController } from 'src/presentation/v1/http/payments/controller/payment.controller';
-import { FileController } from 'src/presentation/v1/http/csv/controller/generate-file.controller';
 
 @Module({
   imports: [ApplicationModule],
@@ -20,7 +19,6 @@ import { FileController } from 'src/presentation/v1/http/csv/controller/generate
     OrderController,
     ItemController,
     PaymentController,
-    FileController,
   ],
   providers: [
     {

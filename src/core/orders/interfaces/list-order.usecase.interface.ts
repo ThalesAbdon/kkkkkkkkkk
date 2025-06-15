@@ -20,3 +20,5 @@ export interface Order {
 export interface ListOrderUsecaseOutput {
   orders: Order[];
 }
+
+export { ItemEntity };

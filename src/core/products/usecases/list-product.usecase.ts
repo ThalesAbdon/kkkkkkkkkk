@@ -14,7 +14,40 @@ export class ListProductUsecase
     @Inject(ProductRepository)
     private readonly _productRepository: ProductRepository,
   ) {}
+
   async execute(input: ListProductUsecaseInput): Promise<Product[]> {
-    return await this._productRepository.get(input);
+    const where = {};
+
+    if (input.name) {
+      Object.assign(where, {
+        name: { contains: input.name, mode: 'insensitive' },
+      });
+    }
+
+    if (input.description) {
+      Object.assign(where, {
+        description: { contains: input.description, mode: 'insensitive' },
+      });
+    }
+
+    if (input.price) {
+      Object.assign(where, { price: input.price });
+    }
+
+    if (input.quantityStock) {
+      Object.assign(where, { quantity_stock: input.quantityStock });
+    }
+
+    const products = await this._productRepository.findBy(where);
+
+    return products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      quantityStock: product.quantity_stock,
+      createdAt: product.created_at,
+      updatedAt: product.updated_at,
+    }));
   }
 }

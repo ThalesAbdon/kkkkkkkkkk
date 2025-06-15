@@ -11,6 +11,6 @@ export class ActivedAccountUsecase
     @Inject(UserRepository) private readonly userRepository: UserRepository,
   ) {}
   async execute(input: ActivedAccountUsecaseInput): Promise<void> {
-    await this.userRepository.update(input.id, { emailVerified: true });
+    await this.userRepository.update(input.id, { email_verified: true });
   }
 }

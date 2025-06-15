@@ -12,8 +12,22 @@ export class FindByIdProductUsecase
     @Inject(ProductRepository)
     private readonly _productRepository: ProductRepository,
   ) {}
+
   async execute(input: FindByIdProductUsecaseInput): Promise<ProductEntity> {
-    const product = await this._productRepository.findOne(input);
-    return product;
+    const prismaProduct = await this._productRepository.findOne(input.id);
+
+    if (!prismaProduct) {
+      throw new Error('Product not found');
+    }
+
+    return new ProductEntity({
+      id: prismaProduct.id,
+      name: prismaProduct.name,
+      description: prismaProduct.description,
+      price: prismaProduct.price,
+      quantityStock: prismaProduct.quantity_stock,
+      createdAt: prismaProduct.created_at,
+      updatedAt: prismaProduct.updated_at,
+    });
   }
 }

@@ -14,9 +14,20 @@ export class CreateProductUsecase
     @Inject(ProductRepository)
     private readonly _productRepository: ProductRepository,
   ) {}
+
   async execute(
     input: CreateProductUsecaseInput,
   ): Promise<CreateProductUsecaseOutput> {
-    return await this._productRepository.create(input);
+    const product = await this._productRepository.save(input);
+
+    return {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      quantityStock: product.quantity_stock,
+      createdAt: product.created_at,
+      updatedAt: product.updated_at,
+    };
   }
 }

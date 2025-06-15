@@ -12,7 +12,7 @@ export class VerifyProductUsecase
     private readonly _productRepository: ProductRepository,
   ) {}
   async execute(input: VerifyProductUsecaseInput): Promise<boolean> {
-    const product = await this._productRepository.findOne(input);
+    const product = await this._productRepository.findByName(input.name);
     return product?.name ? true : false;
   }
 }

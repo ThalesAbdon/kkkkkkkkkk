@@ -1,4 +1,5 @@
 version: "3.8"
+
 services:
   db:
     container_name: postgres_container
@@ -8,18 +9,19 @@ services:
       POSTGRES_USER: ${DATABASE_USERNAME}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
-    networks:
-      - backend_network
     ports:
       - "5432:5432"
+    networks:
+      - backend_network
+
   nest-backend:
     container_name: loomi-ecom-api
     image: loomi-ecom-api
     build:
-      dockerfile: Dockerfile
       context: .
+      dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION_TIME: ${JWT_EXPIRATION_TIME}
@@ -30,10 +32,9 @@ services:
       DATABASE_NAME: ${DATABASE_NAME}
       POSTGRES_SCHEMA: ${POSTGRES_SCHEMA}
       LOCAL_HOST: ${LOCAL_HOST}
-      EMAIL_JS_PUBLIC_KEY: ${EMAIL_JS_PUBLIC_KEY}
-      EMAIL_JS_PRIVATE_KEY: ${EMAIL_JS_PRIVATE_KEY}
-      EMAIL_JS_REGISTRATION_TEMPLATE_ID: ${EMAIL_JS_REGISTRATION_TEMPLATE_ID}
-      EMAIL_JS_SERVICE_KEY: ${EMAIL_JS_SERVICE_KEY}
+      DATABASE_URL: ${DATABASE_URL}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY}
+      SENDGRID_SENDER_EMAIL: ${SENDGRID_SENDER_EMAIL}
     networks:
       - backend_network
     volumes:
@@ -43,7 +44,12 @@ services:
     depends_on:
       - db
     command: >
-      sh -c "npm run migration:run && npm start"
+      sh -c "
+        npx prisma generate --schema=src/infra/database/postgres/prisma/schema.prisma &&
+        npx prisma migrate deploy --schema=src/infra/database/postgres/prisma/schema.prisma &&
+        npm run seed &&
+        npm run start
+      "
 
 volumes:
   postgres_data: {}
@@ -51,5 +57,3 @@ volumes:
 networks:
   backend_network:
     driver: bridge
-
-# docker compose --env-file .env up

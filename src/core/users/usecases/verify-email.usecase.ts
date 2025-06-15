@@ -8,8 +8,8 @@ export class VerifyEmailUsecase implements IUseCase<VerifyEmailInput, boolean> {
   constructor(
     @Inject(UserRepository) private readonly _userRepository: UserRepository,
   ) {}
-  async execute(input: VerifyEmailInput): Promise<boolean> {
-    const user = await this._userRepository.findOne(input);
-    return user?.id ? true : false;
-  }
+ async execute(input: VerifyEmailInput): Promise<boolean> {
+  const user = await this._userRepository.findByEmail(input.email);
+  return user?.id ? true : false;
+}
 }

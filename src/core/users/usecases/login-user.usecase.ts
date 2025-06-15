@@ -3,18 +3,34 @@ import { CreateUserUsecaseOutput } from '../interfaces/create.user.usecase.inter
 import { UserRepository } from '../repository/user.repository';
 import { Inject, Injectable } from '@nestjs/common';
 import { LoginUserUsecaseInput } from '../interfaces/login.user.usecase.interface';
+import { UserRole } from 'src/shared/user-role.enum';
 
 @Injectable()
 export class LoginUserUsecase
-  implements IUseCase<LoginUserUsecaseInput, Record<string, any>>
+  implements IUseCase<LoginUserUsecaseInput, CreateUserUsecaseOutput>
 {
   constructor(
     @Inject(UserRepository) private readonly userRepository: UserRepository,
   ) {}
+
   async execute(
     input: LoginUserUsecaseInput,
   ): Promise<CreateUserUsecaseOutput> {
-    const user = await this.userRepository.findOne({ email: input.email });
-    return user;
+    const user = await this.userRepository.findByEmail(input.email);
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      type: user.type as UserRole,
+      emailVerified: user.email_verified,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+    };
   }
 }

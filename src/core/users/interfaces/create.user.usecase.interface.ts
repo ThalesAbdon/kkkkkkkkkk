@@ -9,6 +9,7 @@ export interface CreateUserUsecaseInput {
 
 export interface CreateUserUsecaseOutput extends CreateUserUsecaseInput {
   id: number;
+  emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

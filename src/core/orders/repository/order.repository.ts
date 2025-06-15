@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/infra/database/postgres/prisma/prisma.service';
 import type { Order as PrismaOrder, OrderStatus, Prisma } from '@prisma/client';
 import type { Order as DomainOrder } from '../interfaces/list-order.usecase.interface';
+import { OrderStatus as DomainOrderStatus } from 'src/shared/order-status.enum';
+import { OrderMapper } from '../mappers/order.mapper';
 
 @Injectable()
 export class OrderRepository {
@@ -35,31 +37,28 @@ export class OrderRepository {
     });
   }
 
-  async get(
-    filters: Partial<{ status: OrderStatus; clientId: number; total: number }>
-  ): Promise<DomainOrder[]> {
-    const where: Prisma.OrderWhereInput = {};
+async get(
+  filters: Partial<{ status: DomainOrderStatus; clientId: number; total: number }>
+): Promise<DomainOrder[]> {
+  const where: Prisma.OrderWhereInput = {};
 
-    if (filters.status) where.status = filters.status;
-    if (filters.clientId) where.client_id = filters.clientId;
-    if (filters.total) where.total = filters.total;
+  if (filters.status) where.status = filters.status as any;
+  if (filters.clientId) where.client_id = filters.clientId;
+  if (filters.total) where.total = filters.total;
 
-    const orders = await this.prisma.order.findMany({
-      where,
-      include: this.includeRelations,
-    });
+  const orders = await this.prisma.order.findMany({
+    where,
+    include: {
+      items: {
+        include: {
+          product: true,
+        },
+      },
+    },
+  });
 
-    // Mapeia para camelCase e estrutura esperada no domínio
-    return orders.map(order => ({
-      id: order.id,
-      clientId: order.client_id,
-      status: order.status as unknown as DomainOrder['status'],
-      total: order.total,
-      orderDate: order.order_date,
-      updatedAt: order.updated_at,
-      item: order.items,
-    }));
-  }
+  return orders.map(OrderMapper.toDomain);
+}
 
   async create(data: Prisma.OrderCreateInput): Promise<PrismaOrder> {
     return this.prisma.order.create({
